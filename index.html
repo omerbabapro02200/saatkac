@@ -3,52 +3,59 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- Google doğrulama (KESİN SİLME) -->
 <meta name="google-site-verification" content="B3cXyT1DCgKE1uaLImi9JXCxDxppzFQmuEYuvJDPLWU">
 
-<title>Saat Kaç?</title>
+<title>Dünya Saatleri</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
 body {
     margin: 0;
+    font-family: Inter;
+    background: #fff;
+    color: #111;
     height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-family: 'Inter', sans-serif;
-    background: #ffffff;
-    color: #111;
 }
 
-.box {
+.container {
     text-align: center;
 }
 
-#clock {
-    font-size: 90px;
+/* Büyük ekran */
+#bigCity {
+    font-size: 40px;
+    margin-bottom: 10px;
+    color: #666;
+}
+
+#bigTime {
+    font-size: 100px;
     font-weight: 600;
-    letter-spacing: 2px;
 }
 
-#date {
-    margin-top: 15px;
-    font-size: 22px;
-    color: #555;
-}
-
+/* alt şehirler */
 .cities {
-    margin-top: 30px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    font-size: 18px;
-    color: #333;
+    margin-top: 40px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .city {
-    padding: 10px;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.city:hover {
+    background: #f2f2f2;
 }
 </style>
 
@@ -56,54 +63,45 @@ body {
 
 <body>
 
-<div class="box">
+<div class="container">
 
-    <!-- Ana saat -->
-    <div id="clock">00:00:00</div>
-    <div id="date"></div>
+    <div id="bigCity">İstanbul</div>
+    <div id="bigTime">--:--:--</div>
 
-    <!-- Dünya saatleri -->
     <div class="cities">
-        <div class="city">İstanbul: <span id="istanbul"></span></div>
-        <div class="city">Londra: <span id="london"></span></div>
-        <div class="city">New York: <span id="ny"></span></div>
-        <div class="city">Tokyo: <span id="tokyo"></span></div>
+        <div class="city" onclick="setCity('Europe/Istanbul','İstanbul')">İstanbul</div>
+        <div class="city" onclick="setCity('Europe/London','Londra')">Londra</div>
+        <div class="city" onclick="setCity('America/New_York','New York')">New York</div>
+        <div class="city" onclick="setCity('Asia/Tokyo','Tokyo')">Tokyo</div>
     </div>
 
 </div>
 
 <script>
-function update() {
 
-    let now = new Date();
+let currentZone = "Europe/Istanbul";
+let currentName = "İstanbul";
 
-    let h = now.getHours().toString().padStart(2,'0');
-    let m = now.getMinutes().toString().padStart(2,'0');
-    let s = now.getSeconds().toString().padStart(2,'0');
+function setCity(zone, name){
+    currentZone = zone;
+    currentName = name;
+    document.getElementById("bigCity").innerText = name;
+}
 
-    document.getElementById("clock").innerText = `${h}:${m}:${s}`;
+function update(){
+    let time = new Date().toLocaleTimeString("tr-TR", {
+        timeZone: currentZone,
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+    });
 
-    let days = ["Pazar","Pazartesi","Salı","Çarşamba","Perşembe","Cuma","Cumartesi"];
-    let months = ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"];
-
-    document.getElementById("date").innerText =
-        `${days[now.getDay()]} • ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
-
-    document.getElementById("istanbul").innerText =
-        new Date().toLocaleTimeString("tr-TR", { timeZone: "Europe/Istanbul" });
-
-    document.getElementById("london").innerText =
-        new Date().toLocaleTimeString("tr-TR", { timeZone: "Europe/London" });
-
-    document.getElementById("ny").innerText =
-        new Date().toLocaleTimeString("tr-TR", { timeZone: "America/New_York" });
-
-    document.getElementById("tokyo").innerText =
-        new Date().toLocaleTimeString("tr-TR", { timeZone: "Asia/Tokyo" });
+    document.getElementById("bigTime").innerText = time;
 }
 
 setInterval(update, 1000);
 update();
+
 </script>
 
 </body>
