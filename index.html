@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -57,6 +58,40 @@ body {
 .city:hover {
     background: #f2f2f2;
 }
+
+/* kronometre kutusu */
+.stopwatch-box {
+    background: #ff3b3b;
+    color: white;
+    border: none;
+}
+
+/* popup kronometre */
+#swPopup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+#swTime {
+    font-size: 50px;
+    margin-bottom: 20px;
+}
+
+#swPopup button {
+    margin: 5px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
 </style>
 
 </head>
@@ -73,8 +108,21 @@ body {
         <div class="city" onclick="setCity('Europe/London','Londra')">Londra</div>
         <div class="city" onclick="setCity('America/New_York','New York')">New York</div>
         <div class="city" onclick="setCity('Asia/Tokyo','Tokyo')">Tokyo</div>
+
+        <!-- KRONOMETRE KUTUSU -->
+        <div class="city stopwatch-box" onclick="openSW()">Kronometre</div>
     </div>
 
+</div>
+
+<!-- KRONOMETRE POPUP -->
+<div id="swPopup">
+    <div id="swTime">00:00:00.000</div>
+    <button onclick="startSW()">Başlat</button>
+    <button onclick="stopSW()">Durdur</button>
+    <button onclick="resetSW()">Sıfırla</button>
+    <br><br>
+    <button onclick="closeSW()">Kapat</button>
 </div>
 
 <script>
@@ -102,7 +150,60 @@ function update(){
 setInterval(update, 1000);
 update();
 
+/* KRONOMETRE */
+
+let swStart = 0;
+let swElapsed = 0;
+let swInterval;
+let running = false;
+
+function formatTime(ms){
+    let h = Math.floor(ms / 3600000);
+    let m = Math.floor((ms % 3600000) / 60000);
+    let s = Math.floor((ms % 60000) / 1000);
+    let milli = ms % 1000;
+
+    return String(h).padStart(2,'0') + ":" +
+           String(m).padStart(2,'0') + ":" +
+           String(s).padStart(2,'0') + "." +
+           String(milli).padStart(3,'0');
+}
+
+function updateSW(){
+    let now = Date.now();
+    swElapsed = now - swStart;
+    document.getElementById("swTime").innerText = formatTime(swElapsed);
+}
+
+function startSW(){
+    if(!running){
+        running = true;
+        swStart = Date.now() - swElapsed;
+        swInterval = setInterval(updateSW, 10);
+    }
+}
+
+function stopSW(){
+    running = false;
+    clearInterval(swInterval);
+}
+
+function resetSW(){
+    stopSW();
+    swElapsed = 0;
+    document.getElementById("swTime").innerText = "00:00:00.000";
+}
+
+function openSW(){
+    document.getElementById("swPopup").style.display = "block";
+}
+
+function closeSW(){
+    document.getElementById("swPopup").style.display = "none";
+}
+
 </script>
 
 </body>
 </html>
+```
