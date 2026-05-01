@@ -26,7 +26,6 @@ body {
     text-align: center;
 }
 
-/* Büyük ekran */
 #bigCity {
     font-size: 40px;
     margin-bottom: 10px;
@@ -38,7 +37,6 @@ body {
     font-weight: 600;
 }
 
-/* alt şehirler */
 .cities {
     margin-top: 40px;
     display: flex;
@@ -59,38 +57,9 @@ body {
     background: #f2f2f2;
 }
 
-/* kronometre kutusu */
 .stopwatch-box {
     background: #ff3b3b;
     color: white;
-    border: none;
-}
-
-/* popup kronometre */
-#swPopup {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    text-align: center;
-}
-
-#swTime {
-    font-size: 50px;
-    margin-bottom: 20px;
-}
-
-#swPopup button {
-    margin: 5px;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
 }
 </style>
 
@@ -109,34 +78,28 @@ body {
         <div class="city" onclick="setCity('America/New_York','New York')">New York</div>
         <div class="city" onclick="setCity('Asia/Tokyo','Tokyo')">Tokyo</div>
 
-        <!-- KRONOMETRE KUTUSU -->
-        <div class="city stopwatch-box" onclick="openSW()">Kronometre</div>
+        <div class="city stopwatch-box" onclick="toggleSW()">Kronometre</div>
     </div>
 
-</div>
-
-<!-- KRONOMETRE POPUP -->
-<div id="swPopup">
-    <div id="swTime">00:00:00.000</div>
-    <button onclick="startSW()">Başlat</button>
-    <button onclick="stopSW()">Durdur</button>
-    <button onclick="resetSW()">Sıfırla</button>
-    <br><br>
-    <button onclick="closeSW()">Kapat</button>
 </div>
 
 <script>
 
 let currentZone = "Europe/Istanbul";
 let currentName = "İstanbul";
+let stopwatchMode = false;
 
 function setCity(zone, name){
+    stopwatchMode = false;
     currentZone = zone;
     currentName = name;
     document.getElementById("bigCity").innerText = name;
 }
 
-function update(){
+/* SAAT */
+function updateClock(){
+    if(stopwatchMode) return;
+
     let time = new Date().toLocaleTimeString("tr-TR", {
         timeZone: currentZone,
         hour: "2-digit",
@@ -146,9 +109,6 @@ function update(){
 
     document.getElementById("bigTime").innerText = time;
 }
-
-setInterval(update, 1000);
-update();
 
 /* KRONOMETRE */
 
@@ -161,25 +121,25 @@ function formatTime(ms){
     let h = Math.floor(ms / 3600000);
     let m = Math.floor((ms % 3600000) / 60000);
     let s = Math.floor((ms % 60000) / 1000);
-    let milli = ms % 1000;
+    let cs = Math.floor((ms % 1000) / 10); // 2 haneli
 
     return String(h).padStart(2,'0') + ":" +
            String(m).padStart(2,'0') + ":" +
            String(s).padStart(2,'0') + "." +
-           String(milli).padStart(3,'0');
+           String(cs).padStart(2,'0');
 }
 
 function updateSW(){
     let now = Date.now();
     swElapsed = now - swStart;
-    document.getElementById("swTime").innerText = formatTime(swElapsed);
+    document.getElementById("bigTime").innerText = formatTime(swElapsed);
 }
 
 function startSW(){
     if(!running){
         running = true;
         swStart = Date.now() - swElapsed;
-        swInterval = setInterval(updateSW, 10);
+        swInterval = setInterval(updateSW, 16);
     }
 }
 
@@ -191,16 +151,26 @@ function stopSW(){
 function resetSW(){
     stopSW();
     swElapsed = 0;
-    document.getElementById("swTime").innerText = "00:00:00.000";
+    document.getElementById("bigTime").innerText = "00:00:00.00";
 }
 
-function openSW(){
-    document.getElementById("swPopup").style.display = "block";
+function toggleSW(){
+    stopwatchMode = !stopwatchMode;
+
+    if(stopwatchMode){
+        document.getElementById("bigCity").innerText = "Kronometre";
+        resetSW();
+        startSW();
+    }else{
+        stopSW();
+        document.getElementById("bigCity").innerText = currentName;
+        updateClock();
+    }
 }
 
-function closeSW(){
-    document.getElementById("swPopup").style.display = "none";
-}
+/* interval */
+setInterval(updateClock, 1000);
+updateClock();
 
 </script>
 
